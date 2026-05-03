@@ -27,6 +27,8 @@ Build `hevy`, a single-binary command-line client for the Hevy public API. The f
 
 The app reads `docs/hevy-openapi.json` when it needs runtime metadata. Development reads should prefer `docs/hevy-openapi.toon` because it is smaller.
 
+Hevy does not expose a standalone OpenAPI JSON endpoint. `bun run update:openapi` fetches `https://api.hevyapp.com/docs/swagger-ui-init.js`, extracts the embedded `swaggerDoc` object, writes `docs/hevy-openapi.json`, regenerates `docs/hevy-openapi.toon`, and updates generated TypeScript declarations.
+
 Generate and commit TypeScript declarations from the JSON contract:
 
 ```bash

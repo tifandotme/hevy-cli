@@ -32,35 +32,15 @@ jobs:
         with:
           bun-version: latest
 
-      - run: curl -sfS https://dotenvx.sh/install.sh | sh
-
-      - env:
-          DOTENV_PRIVATE_KEY: ${{ secrets.DOTENV_PRIVATE_KEY }}
-        run: |
-          if [ -n "${DOTENV_PRIVATE_KEY}" ] && [ -f .env ]; then
-            dotenvx decrypt -f .env
-          fi
-
       - run: bun install --frozen-lockfile
 
       - name: Update OpenAPI docs
-        env:
-          HEVY_OPENAPI_URL: ${{ vars.HEVY_OPENAPI_URL }}
-        run: |
-          if [ -f .env ]; then
-            dotenvx run -f .env -- bun run update:openapi
-          else
-            if [ -z "${HEVY_OPENAPI_URL}" ]; then
-              echo "HEVY_OPENAPI_URL repository variable or root .env is required"
-              exit 1
-            fi
-            bun run update:openapi
-          fi
+        run: bun run update:openapi
 
       - name: Detect OpenAPI changes
         id: detect_changes
         run: |
-          git status --porcelain -- docs/hevy-openapi.json docs/hevy-openapi.toon \
+          git status --porcelain -- docs/hevy-openapi.json docs/hevy-openapi.toon src/generated/hevy-openapi.d.ts \
             | awk '{print $2}' | sort > /tmp/openapi-changes.txt
 
           if [ ! -s /tmp/openapi-changes.txt ]; then
@@ -80,7 +60,7 @@ jobs:
         if: steps.detect_changes.outputs.has_changes == 'true'
         run: |
           git checkout -B "${UPDATE_BRANCH}"
-          git add docs/hevy-openapi.json docs/hevy-openapi.toon
+          git add docs/hevy-openapi.json docs/hevy-openapi.toon src/generated/hevy-openapi.d.ts
           git commit -m "chore: update Hevy OpenAPI spec"
           git push origin "${UPDATE_BRANCH}" --force
 
@@ -99,7 +79,7 @@ jobs:
             printf "%s\n" \
               "**Automated Hevy OpenAPI spec update**" \
               "" \
-              "Updates \`docs/hevy-openapi.json\` from the configured Hevy OpenAPI source and regenerates \`docs/hevy-openapi.toon\` with \`bunx @toon-format/cli\`." \
+              "Extracts the OpenAPI document from \`https://api.hevyapp.com/docs/swagger-ui-init.js\`, updates \`docs/hevy-openapi.json\`, regenerates \`docs/hevy-openapi.toon\`, and updates generated TypeScript declarations." \
               "" \
               "This PR is maintained automatically by \`update-openapi.yml\`. Force-pushes to \`${UPDATE_BRANCH}\` keep it aligned with the latest upstream spec." \
               > /tmp/pr-body.md
