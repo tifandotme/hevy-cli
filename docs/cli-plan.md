@@ -12,7 +12,6 @@ Build `hevy`, a single-binary command-line client for the Hevy public API. The f
 - Install channel: Homebrew only.
 - Source repo: `tifandotme/hevy-cli`.
 - Tap repo: `tifandotme/homebrew-tap`.
-- The source repo does not exist yet; create it before wiring release automation.
 - Release target: macOS Apple Silicon only.
 - API base URL: `https://api.hevyapp.com`.
 - Auth lookup order: `HEVY_API_KEY`, then local config.
@@ -31,7 +30,7 @@ The app reads `docs/hevy-openapi.json` when it needs runtime metadata. Developme
 Generate and commit TypeScript declarations from the JSON contract:
 
 ```bash
-bunx openapi-typescript docs/hevy-openapi.json -o src/generated/hevy-openapi.d.ts
+bun run generate:openapi-types
 ```
 
 Application code imports the generated types for request and response typing.
