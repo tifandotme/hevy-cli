@@ -1,0 +1,130 @@
+name: Update OpenAPI spec
+
+on:
+  schedule:
+    - cron: "17 8 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: update-openapi-spec
+  cancel-in-progress: false
+
+env:
+  UPDATE_BRANCH: chore/update-openapi-spec
+  UPDATE_LABEL: openapi-sync
+
+jobs:
+  update-openapi:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: latest
+
+      - run: curl -sfS https://dotenvx.sh/install.sh | sh
+
+      - env:
+          DOTENV_PRIVATE_KEY: ${{ secrets.DOTENV_PRIVATE_KEY }}
+        run: |
+          if [ -n "${DOTENV_PRIVATE_KEY}" ] && [ -f .env ]; then
+            dotenvx decrypt -f .env
+          fi
+
+      - run: bun install --frozen-lockfile
+
+      - name: Update OpenAPI docs
+        env:
+          HEVY_OPENAPI_URL: ${{ vars.HEVY_OPENAPI_URL }}
+        run: |
+          if [ -f .env ]; then
+            dotenvx run -f .env -- bun run update:openapi
+          else
+            if [ -z "${HEVY_OPENAPI_URL}" ]; then
+              echo "HEVY_OPENAPI_URL repository variable or root .env is required"
+              exit 1
+            fi
+            bun run update:openapi
+          fi
+
+      - name: Detect OpenAPI changes
+        id: detect_changes
+        run: |
+          git status --porcelain -- docs/hevy-openapi.json docs/hevy-openapi.toon \
+            | awk '{print $2}' | sort > /tmp/openapi-changes.txt
+
+          if [ ! -s /tmp/openapi-changes.txt ]; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
+
+      - name: Configure git identity
+        if: steps.detect_changes.outputs.has_changes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit and force-push update branch
+        if: steps.detect_changes.outputs.has_changes == 'true'
+        run: |
+          git checkout -B "${UPDATE_BRANCH}"
+          git add docs/hevy-openapi.json docs/hevy-openapi.toon
+          git commit -m "chore: update Hevy OpenAPI spec"
+          git push origin "${UPDATE_BRANCH}" --force
+
+      - name: Ensure update label exists
+        if: steps.detect_changes.outputs.has_changes == 'true'
+        run: gh label create "${UPDATE_LABEL}" --color "0075ca" --description "Automated OpenAPI spec update" --force
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Open or update OpenAPI PR
+        if: steps.detect_changes.outputs.has_changes == 'true'
+        run: |
+          existing_pr=$(gh pr list --head "${UPDATE_BRANCH}" --state open --json number --jq '.[0].number')
+
+          if [ -z "${existing_pr}" ]; then
+            printf "%s\n" \
+              "**Automated Hevy OpenAPI spec update**" \
+              "" \
+              "Updates \`docs/hevy-openapi.json\` from the configured Hevy OpenAPI source and regenerates \`docs/hevy-openapi.toon\` with \`bunx @toon-format/cli\`." \
+              "" \
+              "This PR is maintained automatically by \`update-openapi.yml\`. Force-pushes to \`${UPDATE_BRANCH}\` keep it aligned with the latest upstream spec." \
+              > /tmp/pr-body.md
+
+            gh pr create \
+              --head "${UPDATE_BRANCH}" \
+              --base master \
+              --title "chore: update Hevy OpenAPI spec" \
+              --body-file /tmp/pr-body.md \
+              --label "${UPDATE_LABEL}"
+          else
+            echo "PR #${existing_pr} already open; force-push updated it."
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Close stale OpenAPI PR
+        if: steps.detect_changes.outputs.has_changes == 'false'
+        run: |
+          existing_pr=$(gh pr list --head "${UPDATE_BRANCH}" --state open --json number --jq '.[0].number')
+
+          if [ -n "${existing_pr}" ]; then
+            gh pr close "${existing_pr}" --comment "Closed automatically because the Hevy OpenAPI spec no longer differs from master."
+          else
+            echo "No open OpenAPI update PR to close."
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

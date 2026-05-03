@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.tmp/
+.env
+.env.*
+!.env.example
+
+# Bun compile leftovers
+.*.bun-build

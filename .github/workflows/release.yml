@@ -1,0 +1,120 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  BINARY_NAME: hevy
+  ASSET_NAME: hevy-darwin-arm64.tar.gz
+  TAP_REPO: tifandotme/homebrew-tap
+  TAP_BRANCH: chore/update-hevy-${{ github.ref_name }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+      - run: bun run format:check
+      - run: bun run lint
+      - run: bun run typecheck
+      - run: bun test
+
+      - name: Build macOS Apple Silicon binary
+        run: |
+          mkdir -p dist/release
+          bun build --compile --target=bun-darwin-arm64 src/cli.ts --outfile "dist/release/${BINARY_NAME}"
+          tar -C dist/release -czf "dist/${ASSET_NAME}" "${BINARY_NAME}"
+          shasum -a 256 "dist/${ASSET_NAME}" | awk '{print $1}' > dist/sha256.txt
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "${{ github.ref_name }}" >/dev/null 2>&1; then
+            gh release upload "${{ github.ref_name }}" "dist/${ASSET_NAME}" --clobber
+          else
+            gh release create "${{ github.ref_name }}" "dist/${ASSET_NAME}" \
+              --title "${{ github.ref_name }}" \
+              --notes "Release ${{ github.ref_name }}"
+          fi
+
+      - name: Update Homebrew tap PR
+        env:
+          GH_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "TAP_GITHUB_TOKEN secret is required to update ${TAP_REPO}"
+            exit 1
+          fi
+
+          version="${{ github.ref_name }}"
+          version_no_v="${version#v}"
+          sha256="$(cat dist/sha256.txt)"
+          url="https://github.com/tifandotme/hevy-cli/releases/download/${version}/${ASSET_NAME}"
+
+          rm -rf /tmp/homebrew-tap
+          gh repo clone "${TAP_REPO}" /tmp/homebrew-tap
+          cd /tmp/homebrew-tap
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B "${TAP_BRANCH}"
+          mkdir -p Formula
+
+          cat > Formula/hevy.rb <<EOF
+          class Hevy < Formula
+            desc "Command-line client for the Hevy public API"
+            homepage "https://github.com/tifandotme/hevy-cli"
+            url "${url}"
+            version "${version_no_v}"
+            sha256 "${sha256}"
+
+            def install
+              bin.install "hevy"
+            end
+
+            test do
+              assert_match "hevy", shell_output("#{bin}/hevy --help")
+            end
+          end
+          EOF
+
+          ruby -pi -e 'gsub(/^          /, "")' Formula/hevy.rb
+          git add Formula/hevy.rb
+
+          if git diff --cached --quiet; then
+            echo "Formula is already up to date."
+            exit 0
+          fi
+
+          git commit -m "chore: update hevy to ${version}"
+          git push origin "${TAP_BRANCH}" --force
+
+          existing_pr=$(gh pr list --repo "${TAP_REPO}" --head "${TAP_BRANCH}" --state open --json number --jq '.[0].number')
+          if [ -z "${existing_pr}" ]; then
+            gh pr create \
+              --repo "${TAP_REPO}" \
+              --head "${TAP_BRANCH}" \
+              --base master \
+              --title "chore: update hevy to ${version}" \
+              --body "Updates the hevy formula to ${version}."
+          else
+            echo "PR #${existing_pr} already open; force-push updated it."
+          fi
