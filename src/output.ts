@@ -1,43 +1,49 @@
-import { HevyApiError } from "./api";
-import type { Stdio } from "./stdio";
+import { HevyApiError } from "./api"
+import type { Stdio } from "./stdio"
 
 export async function printJson(stdio: Stdio, value: unknown): Promise<void> {
   if (value === undefined) {
-    return;
+    return
   }
-  await stdio.writeStdout(`${JSON.stringify(value, null, 2)}\n`);
+  await stdio.writeStdout(`${JSON.stringify(value, null, 2)}\n`)
 }
 
-export async function printError(stdio: Stdio, error: unknown, debug = false): Promise<void> {
+export async function printError(
+  stdio: Stdio,
+  error: unknown,
+  debug = false,
+): Promise<void> {
   if (error instanceof HevyApiError) {
-    const body = parseErrorBody(error.body);
-    await stdio.writeStderr(`Hevy API error ${error.status}${body ? `: ${body}` : ""}\n`);
+    const body = parseErrorBody(error.body)
+    await stdio.writeStderr(
+      `Hevy API error ${error.status}${body ? `: ${body}` : ""}\n`,
+    )
     if (debug) {
-      await stdio.writeStderr(`URL: ${error.url}\nRaw body: ${error.body}\n`);
+      await stdio.writeStderr(`URL: ${error.url}\nRaw body: ${error.body}\n`)
     }
-    return;
+    return
   }
 
-  const message = error instanceof Error ? error.message : String(error);
-  await stdio.writeStderr(`${message}\n`);
+  const message = error instanceof Error ? error.message : String(error)
+  await stdio.writeStderr(`${message}\n`)
 }
 
 function parseErrorBody(body: string): string {
   if (!body) {
-    return "";
+    return ""
   }
 
   try {
-    const parsed = JSON.parse(body) as { error?: unknown; message?: unknown };
+    const parsed = JSON.parse(body) as { error?: unknown; message?: unknown }
     if (typeof parsed.error === "string") {
-      return parsed.error;
+      return parsed.error
     }
     if (typeof parsed.message === "string") {
-      return parsed.message;
+      return parsed.message
     }
   } catch {
-    return body;
+    return body
   }
 
-  return body;
+  return body
 }

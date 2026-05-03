@@ -1,62 +1,67 @@
-import { defineCommand } from "citty";
-import openapi from "../docs/hevy-openapi.json" with { type: "json" };
-import { type Fetcher, fetchAllPages, request } from "./api";
-import { clearApiKey, readApiKeyFromPrompt, resolveApiKey, saveApiKey } from "./auth";
-import { readJsonBody } from "./body";
-import { printJson } from "./output";
-import type { Stdio } from "./stdio";
-import type { ApiRequestBody } from "./types";
+import { defineCommand } from "citty"
+import openapi from "../docs/hevy-openapi.json" with { type: "json" }
+import { type Fetcher, fetchAllPages, request } from "./api"
+import {
+  clearApiKey,
+  readApiKeyFromPrompt,
+  resolveApiKey,
+  saveApiKey,
+} from "./auth"
+import { readJsonBody } from "./body"
+import { printJson } from "./output"
+import type { Stdio } from "./stdio"
+import type { ApiRequestBody } from "./types"
 
 interface CommandDeps {
-  stdio: Stdio;
-  fetcher?: Fetcher | undefined;
-  env?: Record<string, string | undefined> | undefined;
+  stdio: Stdio
+  fetcher?: Fetcher | undefined
+  env?: Record<string, string | undefined> | undefined
 }
 
-type Args = Record<string, unknown>;
+type Args = Record<string, unknown>
 
 function stringArg(args: Args, name: string): string | undefined {
-  const value = args[name];
-  return typeof value === "string" ? value : undefined;
+  const value = args[name]
+  return typeof value === "string" ? value : undefined
 }
 
 function requiredStringArg(args: Args, name: string): string {
-  const value = stringArg(args, name);
+  const value = stringArg(args, name)
   if (!value) {
-    throw new Error(`Missing required argument: ${name}`);
+    throw new Error(`Missing required argument: ${name}`)
   }
-  return value;
+  return value
 }
 
 function numberArg(args: Args, name: string): number | undefined {
-  const value = args[name];
+  const value = args[name]
   if (value === undefined) {
-    return undefined;
+    return undefined
   }
-  const number = Number(value);
+  const number = Number(value)
   if (!Number.isInteger(number) || number < 1) {
-    throw new Error(`${name} must be a positive integer`);
+    throw new Error(`${name} must be a positive integer`)
   }
-  return number;
+  return number
 }
 
 function boolArg(args: Args, name: string): boolean {
-  return args[name] === true;
+  return args[name] === true
 }
 
 async function apiKey(deps: CommandDeps): Promise<string> {
-  return await resolveApiKey({ env: deps.env });
+  return await resolveApiKey({ env: deps.env })
 }
 
 async function show<T>(deps: CommandDeps, value: T): Promise<void> {
-  await printJson(deps.stdio, value);
+  await printJson(deps.stdio, value)
 }
 
 function pageQuery(args: Args): Record<string, number | undefined> {
   return {
     page: numberArg(args, "page"),
     pageSize: numberArg(args, "page-size"),
-  };
+  }
 }
 
 async function readBody<
@@ -65,15 +70,17 @@ async function readBody<
 >(
   deps: CommandDeps,
   args: Args,
-): Promise<ApiRequestBody<P, M & keyof import("./generated/hevy-openapi").paths[P]>> {
-  return await readJsonBody(stringArg(args, "body"), deps.stdio);
+): Promise<
+  ApiRequestBody<P, M & keyof import("./generated/hevy-openapi").paths[P]>
+> {
+  return await readJsonBody(stringArg(args, "body"), deps.stdio)
 }
 
 const pageArgs = {
   page: { type: "string", description: "Page number" },
   "page-size": { type: "string", description: "Page size" },
   all: { type: "boolean", description: "Fetch every page" },
-} as const;
+} as const
 
 const bodyArg = {
   body: {
@@ -81,7 +88,7 @@ const bodyArg = {
     description: "JSON body, @file.json, or - for stdin",
     required: true,
   },
-} as const;
+} as const
 
 export function createRootCommand(deps: CommandDeps) {
   return defineCommand({
@@ -100,7 +107,7 @@ export function createRootCommand(deps: CommandDeps) {
       "exercise-history": exerciseHistoryCommand(deps),
       "body-measurements": bodyMeasurementsCommand(deps),
     },
-  });
+  })
 }
 
 function authCommand(deps: CommandDeps) {
@@ -113,33 +120,36 @@ function authCommand(deps: CommandDeps) {
           key: { type: "positional", description: "API key" },
         },
         async run({ args }) {
-          const key = stringArg(args, "key") ?? (await readApiKeyFromPrompt(deps.stdio));
-          const path = await saveApiKey(key, { env: deps.env });
-          await deps.stdio.writeStderr(`Saved Hevy API key to ${path}\n`);
+          const key =
+            stringArg(args, "key") ?? (await readApiKeyFromPrompt(deps.stdio))
+          const path = await saveApiKey(key, { env: deps.env })
+          await deps.stdio.writeStderr(`Saved Hevy API key to ${path}\n`)
         },
       }),
       logout: defineCommand({
         meta: { description: "Remove the saved Hevy API key" },
         async run() {
-          const removed = await clearApiKey({ env: deps.env });
+          const removed = await clearApiKey({ env: deps.env })
           await deps.stdio.writeStderr(
-            removed ? "Removed saved Hevy API key\n" : "No saved Hevy API key found\n",
-          );
+            removed
+              ? "Removed saved Hevy API key\n"
+              : "No saved Hevy API key found\n",
+          )
         },
       }),
       status: defineCommand({
         meta: { description: "Show auth status" },
         async run() {
           try {
-            await apiKey(deps);
-            await show(deps, { authenticated: true });
+            await apiKey(deps)
+            await show(deps, { authenticated: true })
           } catch {
-            await show(deps, { authenticated: false });
+            await show(deps, { authenticated: false })
           }
         },
       }),
     },
-  });
+  })
 }
 
 function userCommand(deps: CommandDeps) {
@@ -157,11 +167,11 @@ function userCommand(deps: CommandDeps) {
               method: "get",
               fetcher: deps.fetcher,
             }),
-          );
+          )
         },
       }),
     },
-  });
+  })
 }
 
 function workoutsCommand(deps: CommandDeps) {
@@ -172,8 +182,8 @@ function workoutsCommand(deps: CommandDeps) {
         meta: { description: "List workouts" },
         args: pageArgs,
         async run({ args }) {
-          const key = await apiKey(deps);
-          const query = pageQuery(args);
+          const key = await apiKey(deps)
+          const query = pageQuery(args)
           if (boolArg(args, "all")) {
             await show(
               deps,
@@ -188,8 +198,8 @@ function workoutsCommand(deps: CommandDeps) {
                     fetcher: deps.fetcher,
                   }),
               }),
-            );
-            return;
+            )
+            return
           }
           await show(
             deps,
@@ -200,7 +210,7 @@ function workoutsCommand(deps: CommandDeps) {
               query,
               fetcher: deps.fetcher,
             }),
-          );
+          )
         },
       }),
       count: defineCommand({
@@ -214,7 +224,7 @@ function workoutsCommand(deps: CommandDeps) {
               method: "get",
               fetcher: deps.fetcher,
             }),
-          );
+          )
         },
       }),
       events: defineCommand({
@@ -224,8 +234,8 @@ function workoutsCommand(deps: CommandDeps) {
           since: { type: "string", description: "ISO date" },
         },
         async run({ args }) {
-          const key = await apiKey(deps);
-          const query = { ...pageQuery(args), since: stringArg(args, "since") };
+          const key = await apiKey(deps)
+          const query = { ...pageQuery(args), since: stringArg(args, "since") }
           if (boolArg(args, "all")) {
             await show(
               deps,
@@ -240,8 +250,8 @@ function workoutsCommand(deps: CommandDeps) {
                     fetcher: deps.fetcher,
                   }),
               }),
-            );
-            return;
+            )
+            return
           }
           await show(
             deps,
@@ -252,7 +262,7 @@ function workoutsCommand(deps: CommandDeps) {
               query,
               fetcher: deps.fetcher,
             }),
-          );
+          )
         },
       }),
       get: defineCommand({
@@ -268,7 +278,7 @@ function workoutsCommand(deps: CommandDeps) {
               pathParams: { workoutId: requiredStringArg(args, "workout-id") },
               fetcher: deps.fetcher,
             }),
-          );
+          )
         },
       }),
       create: defineCommand({
@@ -284,7 +294,7 @@ function workoutsCommand(deps: CommandDeps) {
               body: await readBody<"/v1/workouts", "post">(deps, args),
               fetcher: deps.fetcher,
             }),
-          );
+          )
         },
       }),
       update: defineCommand({
@@ -301,14 +311,17 @@ function workoutsCommand(deps: CommandDeps) {
               path: "/v1/workouts/{workoutId}",
               method: "put",
               pathParams: { workoutId: requiredStringArg(args, "workout-id") },
-              body: await readBody<"/v1/workouts/{workoutId}", "put">(deps, args),
+              body: await readBody<"/v1/workouts/{workoutId}", "put">(
+                deps,
+                args,
+              ),
               fetcher: deps.fetcher,
             }),
-          );
+          )
         },
       }),
     },
-  });
+  })
 }
 
 function routinesCommand(deps: CommandDeps) {
@@ -319,7 +332,7 @@ function routinesCommand(deps: CommandDeps) {
     itemPath: "/v1/routines/{routineId}",
     pathParam: "routineId",
     argName: "routine-id",
-  });
+  })
 }
 
 function exerciseTemplatesCommand(deps: CommandDeps) {
@@ -347,14 +360,17 @@ function exerciseTemplatesCommand(deps: CommandDeps) {
               apiKey: await apiKey(deps),
               path: "/v1/exercise_templates",
               method: "post",
-              body: await readBody<"/v1/exercise_templates", "post">(deps, args),
+              body: await readBody<"/v1/exercise_templates", "post">(
+                deps,
+                args,
+              ),
               fetcher: deps.fetcher,
             }),
-          );
+          )
         },
       }),
     },
-  });
+  })
 }
 
 function routineFoldersCommand(deps: CommandDeps) {
@@ -382,11 +398,11 @@ function routineFoldersCommand(deps: CommandDeps) {
               body: await readBody<"/v1/routine_folders", "post">(deps, args),
               fetcher: deps.fetcher,
             }),
-          );
+          )
         },
       }),
     },
-  });
+  })
 }
 
 function exerciseHistoryCommand(deps: CommandDeps) {
@@ -411,7 +427,10 @@ function exerciseHistoryCommand(deps: CommandDeps) {
               path: "/v1/exercise_history/{exerciseTemplateId}",
               method: "get",
               pathParams: {
-                exerciseTemplateId: requiredStringArg(args, "exercise-template-id"),
+                exerciseTemplateId: requiredStringArg(
+                  args,
+                  "exercise-template-id",
+                ),
               },
               query: {
                 start_date: stringArg(args, "start-date"),
@@ -419,11 +438,11 @@ function exerciseHistoryCommand(deps: CommandDeps) {
               },
               fetcher: deps.fetcher,
             }),
-          );
+          )
         },
       }),
     },
-  });
+  })
 }
 
 function bodyMeasurementsCommand(deps: CommandDeps) {
@@ -454,7 +473,7 @@ function bodyMeasurementsCommand(deps: CommandDeps) {
               body: await readBody<"/v1/body_measurements", "post">(deps, args),
               fetcher: deps.fetcher,
             }),
-          );
+          )
         },
       }),
       update: defineCommand({
@@ -468,25 +487,28 @@ function bodyMeasurementsCommand(deps: CommandDeps) {
               path: "/v1/body_measurements/{date}",
               method: "put",
               pathParams: { date: requiredStringArg(args, "date") },
-              body: await readBody<"/v1/body_measurements/{date}", "put">(deps, args),
+              body: await readBody<"/v1/body_measurements/{date}", "put">(
+                deps,
+                args,
+              ),
               fetcher: deps.fetcher,
             }),
-          );
+          )
         },
       }),
     },
-  });
+  })
 }
 
 function pagedCrudCommand(
   deps: CommandDeps,
   config: {
-    name: string;
-    arrayKey: string;
-    listPath: "/v1/routines";
-    itemPath: "/v1/routines/{routineId}";
-    pathParam: string;
-    argName: string;
+    name: string
+    arrayKey: string
+    listPath: "/v1/routines"
+    itemPath: "/v1/routines/{routineId}"
+    pathParam: string
+    argName: string
   },
 ) {
   return defineCommand({
@@ -513,7 +535,7 @@ function pagedCrudCommand(
               body: await readBody<"/v1/routines", "post">(deps, args),
               fetcher: deps.fetcher,
             }),
-          );
+          )
         },
       }),
       update: defineCommand({
@@ -532,14 +554,17 @@ function pagedCrudCommand(
               pathParams: {
                 routineId: requiredStringArg(args, config.argName),
               },
-              body: await readBody<"/v1/routines/{routineId}", "put">(deps, args),
+              body: await readBody<"/v1/routines/{routineId}", "put">(
+                deps,
+                args,
+              ),
               fetcher: deps.fetcher,
             }),
-          );
+          )
         },
       }),
     },
-  });
+  })
 }
 
 function pagedReadSubcommands(
@@ -563,8 +588,8 @@ function pagedReadSubcommands(
       meta: { description: "List items" },
       args: pageArgs,
       async run({ args }) {
-        const key = await apiKey(deps);
-        const query = pageQuery(args);
+        const key = await apiKey(deps)
+        const query = pageQuery(args)
         if (boolArg(args, "all")) {
           await show(
             deps,
@@ -579,8 +604,8 @@ function pagedReadSubcommands(
                   fetcher: deps.fetcher,
                 }),
             }),
-          );
-          return;
+          )
+          return
         }
         await show(
           deps,
@@ -591,7 +616,7 @@ function pagedReadSubcommands(
             query,
             fetcher: deps.fetcher,
           }),
-        );
+        )
       },
     }),
     get: defineCommand({
@@ -607,8 +632,8 @@ function pagedReadSubcommands(
             pathParams: { [pathParam]: requiredStringArg(args, argName) },
             fetcher: deps.fetcher,
           }),
-        );
+        )
       },
     }),
-  };
+  }
 }
