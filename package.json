@@ -12,9 +12,12 @@
   "homepage": "https://github.com/tifandotme/hevy-cli#readme",
   "bugs": "https://github.com/tifandotme/hevy-cli/issues",
   "license": "MIT",
-  "repository": "https://github.com/tifandotme/hevy-cli",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tifandotme/hevy-cli.git"
+  },
   "bin": {
-    "hevy": "./dist/cli.js"
+    "hevy": "dist/cli.js"
   },
   "files": [
     "dist/cli.js",
