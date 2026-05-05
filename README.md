@@ -20,6 +20,14 @@ npm install --global hevy
 hevy --help
 ```
 
+Install the agent skill for Hevy CLI workflows:
+
+```bash
+bunx skills add tifandotme/hevy-cli
+```
+
+The skill tells compatible coding agents how to use the published CLI safely.
+
 ## Authentication
 
 Set your Hevy API key in the environment:
