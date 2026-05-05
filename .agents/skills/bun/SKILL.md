@@ -65,8 +65,8 @@ Bun natively transpiles and executes:
 Access via `process.env`, `Bun.env`, or `import.meta.env` (all equivalent):
 
 ```ts
-const apiUrl = process.env.API_URL;
-const token = Bun.env.AUTH_TOKEN;
+const apiUrl = process.env.API_URL
+const token = Bun.env.AUTH_TOKEN
 ```
 
 Bun auto-loads `.env`, `.env.local`, `.env.[NODE_ENV]` files.
@@ -132,8 +132,8 @@ const server = Bun.serve({
   routes: {
     "/": () => new Response("Hello"),
   },
-});
-console.log(`Listening on ${server.url}`);
+})
+console.log(`Listening on ${server.url}`)
 ```
 
 Run it:
@@ -160,11 +160,11 @@ Run with `bun run dev` or `bun run build`.
 Create `math.test.ts`:
 
 ```ts
-import { test, expect } from "bun:test";
+import { test, expect } from "bun:test"
 
 test("2 + 2 = 4", () => {
-  expect(2 + 2).toBe(4);
-});
+  expect(2 + 2).toBe(4)
+})
 ```
 
 Run tests:
