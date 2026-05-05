@@ -1,5 +1,5 @@
 import { defineCommand } from "citty"
-import openapi from "../docs/hevy-openapi.json" with { type: "json" }
+import packageJson from "../package.json" with { type: "json" }
 import { type Fetcher, fetchAllPages, request } from "./api"
 import {
   clearApiKey,
@@ -94,7 +94,7 @@ export function createRootCommand(deps: CommandDeps) {
   return defineCommand({
     meta: {
       name: "hevy",
-      version: openapi.info.version,
+      version: packageJson.version,
       description: "Command-line client for the Hevy public API",
     },
     subCommands: {

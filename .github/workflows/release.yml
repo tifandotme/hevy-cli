@@ -42,15 +42,6 @@ jobs:
           bun run typecheck
           bun test
 
-      - name: Build package
-        run: bun run build
-
-      - name: Link package
-        run: bun link
-
-      - name: Link package locally
-        run: bun link hevy-cli
-
       - name: Configure Git
         run: |
           git config --global user.name "github-actions[bot]"
@@ -60,6 +51,20 @@ jobs:
         run: bun changeset version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build package
+        run: bun run build
+
+      - name: Check packed package
+        run: npm pack --dry-run
+
+      - name: Test packed CLI install
+        run: |
+          pack_dir=$(mktemp -d)
+          install_dir=$(mktemp -d)
+          npm pack --pack-destination "${pack_dir}"
+          npm install --prefix "${install_dir}" "${pack_dir}"/*.tgz
+          "${install_dir}/node_modules/.bin/hevy" --help
 
       - name: Creating .npmrc
         run: |

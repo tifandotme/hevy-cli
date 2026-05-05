@@ -26,3 +26,11 @@ jobs:
       - run: bun run typecheck
       - run: bun test
       - run: bun run build
+      - run: npm pack --dry-run
+      - name: Test packed CLI install
+        run: |
+          pack_dir=$(mktemp -d)
+          install_dir=$(mktemp -d)
+          npm pack --pack-destination "${pack_dir}"
+          npm install --prefix "${install_dir}" "${pack_dir}"/*.tgz
+          "${install_dir}/node_modules/.bin/hevy" --help
