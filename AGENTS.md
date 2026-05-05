@@ -5,7 +5,7 @@
 - Single-package Bun repository for the `hevy` command-line client.
 - Primary code lives in `src/`; tests live in `tests/`; OpenAPI inputs live in `docs/`; codegen helpers live in `scripts/`.
 - Command runtime uses Citty. Network calls target the Hevy public API. Generated types come from `docs/hevy-openapi.json`.
-- Output is pretty JSON by default. Auth reads `HEVY_API_KEY` first, then falls back to local config.
+- Output is compact JSON by default. Auth reads `HEVY_API_KEY` first, then falls back to local config.
 - Current status: early implementation. Prefer small, direct changes over broad polish work.
 
 ## Root Setup Commands
@@ -35,7 +35,7 @@ bun test tests/smoke.test.ts
 
 - Keep the CLI thin and close to the Hevy API shape.
 - Prefer resource-group plus verb commands such as `hevy workouts list`.
-- Preserve pretty JSON output by default for API resource commands.
+- Preserve compact JSON output by default for API resource commands.
 - Read auth from `HEVY_API_KEY` first; keep local config fallback working.
 - For request bodies, prefer shared JSON body input paths over endpoint-specific flag sprawl.
 - Use Bun-native APIs and Bun test patterns already present in `tests/`.

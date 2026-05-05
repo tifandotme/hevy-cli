@@ -5,7 +5,7 @@ export async function printJson(stdio: Stdio, value: unknown): Promise<void> {
   if (value === undefined) {
     return
   }
-  await stdio.writeStdout(`${JSON.stringify(value, null, 2)}\n`)
+  await stdio.writeStdout(`${JSON.stringify(value)}\n`)
 }
 
 export async function printError(

@@ -2,7 +2,7 @@
 
 Bun-native command-line client for the Hevy public API.
 
-Use `hevy` to inspect workouts, routines, exercise templates, body measurements, and other Hevy data from your terminal. It prints pretty JSON by default, so it works well with `jq`, shell scripts, cron jobs, and small local dashboards.
+Use `hevy` to inspect workouts, routines, exercise templates, body measurements, and other Hevy data from your terminal. It prints compact JSON by default, so it works well with `jq`, shell scripts, cron jobs, and small local dashboards.
 
 ## Install
 

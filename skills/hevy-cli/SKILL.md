@@ -57,7 +57,7 @@ Before a mutation, show a concise summary of the planned change and ask the user
 
 ## Output handling
 
-Default to concise natural-language summaries. Do not paste raw JSON unless the user asks for it, debugging requires it, or exact fields matter.
+The CLI emits compact JSON by default. Default to concise natural-language summaries. Do not paste raw JSON unless the user asks for it, debugging requires it, or exact fields matter.
 
 Hevy data can include notes, IDs, timestamps, measurements, and detailed set data. Omit irrelevant private details from summaries.
 
