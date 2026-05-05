@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "hevy",
+      "name": "@tifan/hevy",
       "dependencies": {
         "citty": "^0.2.2",
       },

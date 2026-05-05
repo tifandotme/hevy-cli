@@ -1,5 +1,5 @@
 {
-  "name": "hevy",
+  "name": "@tifan/hevy",
   "version": "0.1.0",
   "description": "Command-line client for the Hevy public API",
   "keywords": [
