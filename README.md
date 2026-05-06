@@ -23,7 +23,7 @@ hevy --help
 Install the agent skill for Hevy CLI workflows:
 
 ```bash
-bunx skills add tifandotme/hevy-cli
+bunx skills add tifandotme/hevy-cli --skill hevy-cli -g
 ```
 
 The skill tells compatible coding agents how to use the published CLI safely.
