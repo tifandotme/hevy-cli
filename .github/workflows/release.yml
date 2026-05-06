@@ -66,14 +66,6 @@ jobs:
           npm install --prefix "${install_dir}" "${pack_dir}"/*.tgz
           "${install_dir}/node_modules/.bin/hevy" --help
 
-      - name: Creating .npmrc
-        run: |
-          cat << EOF > "$HOME/.npmrc"
-            //registry.npmjs.org/:_authToken=$NPM_TOKEN
-          EOF
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
       - name: Publish package
         run: bun changeset publish
 
