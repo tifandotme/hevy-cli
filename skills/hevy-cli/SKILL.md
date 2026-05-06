@@ -1,6 +1,6 @@
 ---
 name: hevy-cli
-description: Use when the user wants to interact with Hevy through the local `hevy` CLI: view workouts, routines, exercises, body measurements, exercise history, user profile, or create/update/delete Hevy resources. Trigger for requests like "show my recent workouts", "summarize my Hevy data", "create a workout", "list my routines", "get my exercise history", or troubleshooting Hevy CLI auth and command usage.
+description: "Use when the user wants to interact with Hevy through the local `hevy` CLI: view workouts, routines, exercises, body measurements, exercise history, user profile, or create/update/delete Hevy resources. Trigger for requests like \"show my recent workouts\", \"summarize my Hevy data\", \"create a workout\", \"list my routines\", \"get my exercise history\", or troubleshooting Hevy CLI auth and command usage."
 ---
 
 # Hevy CLI
