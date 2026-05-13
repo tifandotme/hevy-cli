@@ -1,5 +1,11 @@
 # @tifan/hevy
 
+## 0.2.2
+
+### Patch Changes
+
+- [`679279f`](https://github.com/tifandotme/hevy-cli/commit/679279f1b1aa0cd81fa064f48a26dd3bfc43bf1e) Thanks [@tifandotme](https://github.com/tifandotme)! - fix bunx commands
+
 ## 0.2.1
 
 ### Patch Changes
