@@ -14,7 +14,7 @@ Prefer live CLI help over this file. The skill gives operating rules, not comman
 Use the published CLI with Bun:
 
 ```bash
-bunx @tifan/hevy@latest --help
+bunx --package @tifan/hevy@latest hevy --help
 ```
 
 Do not require a global `hevy` install. Use the repo-local CLI only when the user is working on this repository or testing local changes.
@@ -22,9 +22,9 @@ Do not require a global `hevy` install. Use the repo-local CLI only when the use
 Always inspect help before choosing commands:
 
 ```bash
-bunx @tifan/hevy@latest --help
-bunx @tifan/hevy@latest <group> --help
-bunx @tifan/hevy@latest <group> <command> --help
+bunx --package @tifan/hevy@latest hevy --help
+bunx --package @tifan/hevy@latest hevy <group> --help
+bunx --package @tifan/hevy@latest hevy <group> <command> --help
 ```
 
 Write full commands. Do not rely on shell aliases or variables across tool calls.
@@ -34,7 +34,7 @@ Write full commands. Do not rely on shell aliases or variables across tool calls
 If the user asks for private Hevy data and auth state is unknown, check auth first:
 
 ```bash
-bunx @tifan/hevy@latest auth status
+bunx --package @tifan/hevy@latest hevy auth status
 ```
 
 After one authenticated command succeeds in the session, do not repeat auth checks unless a command fails.
@@ -42,7 +42,7 @@ After one authenticated command succeeds in the session, do not repeat auth chec
 If auth is missing, tell the user to set `HEVY_API_KEY` in their environment or run:
 
 ```bash
-bunx @tifan/hevy@latest auth login
+bunx --package @tifan/hevy@latest hevy auth login
 ```
 
 Never ask the user to paste an API key into chat. Never echo API keys, config file contents, token-like strings, or secret-bearing environment values.
@@ -64,7 +64,7 @@ Hevy data can include notes, IDs, timestamps, measurements, and detailed set dat
 For broad list requests, use a small page size when the command supports it:
 
 ```bash
-bunx @tifan/hevy@latest workouts list --page-size=5
+bunx --package @tifan/hevy@latest hevy workouts list --page-size=5
 ```
 
 Use larger pages or `--all` only when the user asks for comprehensive analysis.
@@ -72,7 +72,7 @@ Use larger pages or `--all` only when the user asks for comprehensive analysis.
 Prefer `jq` to reduce JSON before reading or responding:
 
 ```bash
-bunx @tifan/hevy@latest workouts list --page-size=5 |
+bunx --package @tifan/hevy@latest hevy workouts list --page-size=5 |
   jq '.workouts[] | {title, start_time, exercise_count: (.exercises | length)}'
 ```
 
