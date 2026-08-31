@@ -1405,6 +1405,11 @@ export interface components {
          */
         title?: string
         /**
+         * @description The folder id the routine should be added to. Pass null to insert the routine into default "My Routines" folder
+         * @example null
+         */
+        folder_id?: number | null
+        /**
          * @description Additional notes for the routine.
          * @example Focus on form over weight. Remember to stretch.
          */
@@ -1705,6 +1710,7 @@ export interface components {
       primary_muscle_group?: string
       /** @description The secondary muscle groups of the exercise. */
       secondary_muscle_groups?: string[]
+      equipment_category?: components["schemas"]["EquipmentCategory"]
       /**
        * @description A boolean indicating whether the exercise is a custom exercise.
        * @example false

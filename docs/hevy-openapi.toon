@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Hevy API Docs
-  description: "\n      Welcome to Hevy's public API! We're just starting to roll this out and depending on your\n      feedback, we'll be adding more features and endpoints. Also, we make no guarantees that \n      we won't completely change the structure or abandon the project entirely so use it at\n      your own risk. Currently, this API is only available to Hevy Pro users. You can get your \n      key on our web app at https://hevy.com/settings?developer. If you have any questions,\n      please reach out to pedro@hevyapp.com 🤝.\n      "
+  description: "\n      Welcome to Hevy's public API! We're just starting to roll this out and depending on your\n      feedback, we'll be adding more features and endpoints. Also, we make no guarantees that \n      we won't completely change the structure or abandon the project entirely so use it at\n      your own risk. Currently, this API is only available to Hevy Pro users. You can get your \n      key on our web app at https://hevy.com/settings?developer. If you have any questions,\n      please reach out to pavel@hevyapp.com 🤝.\n      "
   version: 0.0.1
 paths:
   "/v1/workouts":
@@ -46,32 +46,27 @@ paths:
                   workouts:
                     type: array
                     items:
-                      "$ref": #/components/schemas/Workout
+                      "$ref": "#/components/schemas/Workout"
         "400":
           description: Invalid page size
     post:
       summary: Create a new workout
       tags[1]: Workouts
-      parameters[1]:
-        - in: header
-          name: api-key
-          schema:
-            type: string
-            format: uuid
-          required: true
+      parameters[1]{in,name,schema{type,format},required}:
+        header,api-key,string,uuid,true
       requestBody:
         required: true
         content:
           "application/json":
             schema:
-              "$ref": #/components/schemas/PostWorkoutsRequestBody
+              "$ref": "#/components/schemas/PostWorkoutsRequestBody"
       responses:
         "201":
           description: The workout was successfully created
           content:
             "application/json":
               schema:
-                "$ref": #/components/schemas/Workout
+                "$ref": "#/components/schemas/Workout"
         "400":
           description: Invalid request body
           content:
@@ -86,13 +81,8 @@ paths:
     get:
       summary: Get the total number of workouts on the account
       tags[1]: Workouts
-      parameters[1]:
-        - in: header
-          name: api-key
-          schema:
-            type: string
-            format: uuid
-          required: true
+      parameters[1]{in,name,schema{type,format},required}:
+        header,api-key,string,uuid,true
       responses:
         "200":
           description: The total count of workouts
@@ -140,7 +130,7 @@ paths:
           content:
             "application/json":
               schema:
-                "$ref": #/components/schemas/PaginatedWorkoutEvents
+                "$ref": "#/components/schemas/PaginatedWorkoutEvents"
         "500":
           description: Internal Server Error
   "/v1/workouts/{workoutId}":
@@ -164,7 +154,7 @@ paths:
           content:
             "application/json":
               schema:
-                "$ref": #/components/schemas/Workout
+                "$ref": "#/components/schemas/Workout"
         "404":
           description: Workout not found
     put:
@@ -186,14 +176,14 @@ paths:
         content:
           "application/json":
             schema:
-              "$ref": #/components/schemas/PostWorkoutsRequestBody
+              "$ref": "#/components/schemas/PostWorkoutsRequestBody"
       responses:
         "200":
           description: The workout was successfully updated
           content:
             "application/json":
               schema:
-                "$ref": #/components/schemas/Workout
+                "$ref": "#/components/schemas/Workout"
         "400":
           description: Invalid request body
           content:
@@ -208,20 +198,15 @@ paths:
     get:
       summary: Get user info
       tags[1]: Users
-      parameters[1]:
-        - in: header
-          name: api-key
-          schema:
-            type: string
-            format: uuid
-          required: true
+      parameters[1]{in,name,schema{type,format},required}:
+        header,api-key,string,uuid,true
       responses:
         "200":
           description: The authenticated user's info
           content:
             "application/json":
               schema:
-                "$ref": #/components/schemas/UserInfoResponse
+                "$ref": "#/components/schemas/UserInfoResponse"
         "404":
           description: User not found
   "/v1/routines":
@@ -266,32 +251,27 @@ paths:
                   routines:
                     type: array
                     items:
-                      "$ref": #/components/schemas/Routine
+                      "$ref": "#/components/schemas/Routine"
         "400":
           description: Invalid page size
     post:
       summary: Create a new routine
       tags[1]: Routines
-      parameters[1]:
-        - in: header
-          name: api-key
-          schema:
-            type: string
-            format: uuid
-          required: true
+      parameters[1]{in,name,schema{type,format},required}:
+        header,api-key,string,uuid,true
       requestBody:
         required: true
         content:
           "application/json":
             schema:
-              "$ref": #/components/schemas/PostRoutinesRequestBody
+              "$ref": "#/components/schemas/PostRoutinesRequestBody"
       responses:
         "201":
           description: The routine was successfully created
           content:
             "application/json":
               schema:
-                "$ref": #/components/schemas/Routine
+                "$ref": "#/components/schemas/Routine"
         "400":
           description: Invalid request body
           content:
@@ -336,7 +316,7 @@ paths:
                 type: object
                 properties:
                   routine:
-                    "$ref": #/components/schemas/Routine
+                    "$ref": "#/components/schemas/Routine"
         "400":
           description: Invalid request body
           content:
@@ -366,14 +346,14 @@ paths:
         content:
           "application/json":
             schema:
-              "$ref": #/components/schemas/PutRoutinesRequestBody
+              "$ref": "#/components/schemas/PutRoutinesRequestBody"
       responses:
         "200":
           description: The routine was successfully updated
           content:
             "application/json":
               schema:
-                "$ref": #/components/schemas/Routine
+                "$ref": "#/components/schemas/Routine"
         "400":
           description: Invalid request body
           content:
@@ -436,25 +416,20 @@ paths:
                   exercise_templates:
                     type: array
                     items:
-                      "$ref": #/components/schemas/ExerciseTemplate
+                      "$ref": "#/components/schemas/ExerciseTemplate"
         "400":
           description: Invalid page size
     post:
       summary: Create a new custom exercise template.
       tags[1]: ExerciseTemplates
-      parameters[1]:
-        - in: header
-          name: api-key
-          schema:
-            type: string
-            format: uuid
-          required: true
+      parameters[1]{in,name,schema{type,format},required}:
+        header,api-key,string,uuid,true
       requestBody:
         required: true
         content:
           "application/json":
             schema:
-              "$ref": #/components/schemas/CreateCustomExerciseRequestBody
+              "$ref": "#/components/schemas/CreateCustomExerciseRequestBody"
         description: The exercise template to create.
       responses:
         "200":
@@ -511,7 +486,7 @@ paths:
           content:
             "application/json":
               schema:
-                "$ref": #/components/schemas/ExerciseTemplate
+                "$ref": "#/components/schemas/ExerciseTemplate"
         "404":
           description: Exercise template not found
   "/v1/routine_folders":
@@ -556,32 +531,27 @@ paths:
                   routine_folders:
                     type: array
                     items:
-                      "$ref": #/components/schemas/RoutineFolder
+                      "$ref": "#/components/schemas/RoutineFolder"
         "400":
           description: Invalid page size
     post:
       summary: "Create a new routine folder. The folder will be created at index 0, and all other folders will have their indexes incremented."
       tags[1]: RoutineFolders
-      parameters[1]:
-        - in: header
-          name: api-key
-          schema:
-            type: string
-            format: uuid
-          required: true
+      parameters[1]{in,name,schema{type,format},required}:
+        header,api-key,string,uuid,true
       requestBody:
         required: true
         content:
           "application/json":
             schema:
-              "$ref": #/components/schemas/PostRoutineFolderRequestBody
+              "$ref": "#/components/schemas/PostRoutineFolderRequestBody"
       responses:
         "201":
           description: The routine folder was successfully created
           content:
             "application/json":
               schema:
-                "$ref": #/components/schemas/RoutineFolder
+                "$ref": "#/components/schemas/RoutineFolder"
         "400":
           description: Invalid request body
           content:
@@ -613,7 +583,7 @@ paths:
           content:
             "application/json":
               schema:
-                "$ref": #/components/schemas/RoutineFolder
+                "$ref": "#/components/schemas/RoutineFolder"
         "404":
           description: Routine folder not found
   "/v1/exercise_history/{exerciseTemplateId}":
@@ -658,7 +628,7 @@ paths:
                   exercise_history:
                     type: array
                     items:
-                      "$ref": #/components/schemas/ExerciseHistoryEntry
+                      "$ref": "#/components/schemas/ExerciseHistoryEntry"
         "400":
           description: Invalid request parameters or date format
   "/v1/body_measurements":
@@ -701,7 +671,7 @@ paths:
                   body_measurements:
                     type: array
                     items:
-                      "$ref": #/components/schemas/BodyMeasurement
+                      "$ref": "#/components/schemas/BodyMeasurement"
         "400":
           description: Invalid page or pageSize
         "404":
@@ -709,19 +679,14 @@ paths:
     post:
       summary: Create a body measurement entry for a given date. Returns 409 if an entry already exists for that date.
       tags[1]: Measurements
-      parameters[1]:
-        - in: header
-          name: api-key
-          schema:
-            type: string
-            format: uuid
-          required: true
+      parameters[1]{in,name,schema{type,format},required}:
+        header,api-key,string,uuid,true
       requestBody:
         required: true
         content:
           "application/json":
             schema:
-              "$ref": #/components/schemas/BodyMeasurement
+              "$ref": "#/components/schemas/BodyMeasurement"
       responses:
         "200":
           description: The measurement was successfully created
@@ -768,7 +733,7 @@ paths:
           content:
             "application/json":
               schema:
-                "$ref": #/components/schemas/BodyMeasurement
+                "$ref": "#/components/schemas/BodyMeasurement"
         "404":
           description: Body measurement not found
           content:
@@ -801,7 +766,7 @@ paths:
         content:
           "application/json":
             schema:
-              "$ref": #/components/schemas/PutBodyMeasurement
+              "$ref": "#/components/schemas/PutBodyMeasurement"
       responses:
         "200":
           description: The measurement was successfully updated
@@ -884,7 +849,7 @@ components:
         sets:
           type: array
           items:
-            "$ref": #/components/schemas/PostWorkoutsRequestSet
+            "$ref": "#/components/schemas/PostWorkoutsRequestSet"
     PostWorkoutsRequestBody:
       type: object
       properties:
@@ -915,7 +880,7 @@ components:
             exercises:
               type: array
               items:
-                "$ref": #/components/schemas/PostWorkoutsRequestExercise
+                "$ref": "#/components/schemas/PostWorkoutsRequestExercise"
     PostRoutinesRequestSet:
       type: object
       properties:
@@ -953,15 +918,9 @@ components:
           type: object
           nullable: true
           description: "Range of reps for the set, if applicable"
-          properties:
-            start:
-              type: number
-              description: Starting rep count for the range
-              example: 8
-            end:
-              type: number
-              description: Ending rep count for the range
-              example: 12
+          properties[2:]{type,description,example}:
+            start: number,Starting rep count for the range,8
+            end: number,Ending rep count for the range,12
     PostRoutinesRequestExercise:
       type: object
       properties:
@@ -987,7 +946,7 @@ components:
         sets:
           type: array
           items:
-            "$ref": #/components/schemas/PostRoutinesRequestSet
+            "$ref": "#/components/schemas/PostRoutinesRequestSet"
     PostRoutinesRequestBody:
       type: object
       properties:
@@ -1010,7 +969,7 @@ components:
             exercises:
               type: array
               items:
-                "$ref": #/components/schemas/PostRoutinesRequestExercise
+                "$ref": "#/components/schemas/PostRoutinesRequestExercise"
     PutRoutinesRequestSet:
       type: object
       properties:
@@ -1048,17 +1007,9 @@ components:
           type: object
           nullable: true
           description: "Range of reps for the set, if applicable"
-          properties:
-            start:
-              type: number
-              nullable: true
-              description: Starting rep count for the range
-              example: 8
-            end:
-              type: number
-              nullable: true
-              description: Ending rep count for the range
-              example: 12
+          properties[2:]{type,nullable,description,example}:
+            start: number,true,Starting rep count for the range,8
+            end: number,true,Ending rep count for the range,12
     PutRoutinesRequestExercise:
       type: object
       properties:
@@ -1084,7 +1035,7 @@ components:
         sets:
           type: array
           items:
-            "$ref": #/components/schemas/PutRoutinesRequestSet
+            "$ref": "#/components/schemas/PutRoutinesRequestSet"
     PutRoutinesRequestBody:
       type: object
       properties:
@@ -1095,6 +1046,11 @@ components:
               type: string
               description: The title of the routine.
               example: April Leg Day 🔥
+            folder_id:
+              type: number
+              nullable: true
+              description: "The folder id the routine should be added to. Pass null to insert the routine into default \"My Routines\" folder"
+              example: null
             notes:
               type: string
               nullable: true
@@ -1103,7 +1059,7 @@ components:
             exercises:
               type: array
               items:
-                "$ref": #/components/schemas/PutRoutinesRequestExercise
+                "$ref": "#/components/schemas/PutRoutinesRequestExercise"
     PostRoutineFolderRequestBody:
       type: object
       properties:
@@ -1192,75 +1148,24 @@ components:
           example: 37.5
     PutBodyMeasurement:
       type: object
-      properties:
-        weight_kg:
-          type: number
-          nullable: true
-          example: 80.5
-        lean_mass_kg:
-          type: number
-          nullable: true
-          example: 65
-        fat_percent:
-          type: number
-          nullable: true
-          example: 18.5
-        neck_cm:
-          type: number
-          nullable: true
-          example: 38
-        shoulder_cm:
-          type: number
-          nullable: true
-          example: 115
-        chest_cm:
-          type: number
-          nullable: true
-          example: 95
-        left_bicep_cm:
-          type: number
-          nullable: true
-          example: 35
-        right_bicep_cm:
-          type: number
-          nullable: true
-          example: 35.5
-        left_forearm_cm:
-          type: number
-          nullable: true
-          example: 28
-        right_forearm_cm:
-          type: number
-          nullable: true
-          example: 28.5
-        abdomen:
-          type: number
-          nullable: true
-          example: 85
-        waist:
-          type: number
-          nullable: true
-          example: 80
-        hips:
-          type: number
-          nullable: true
-          example: 95
-        left_thigh:
-          type: number
-          nullable: true
-          example: 55
-        right_thigh:
-          type: number
-          nullable: true
-          example: 55.5
-        left_calf:
-          type: number
-          nullable: true
-          example: 37
-        right_calf:
-          type: number
-          nullable: true
-          example: 37.5
+      properties[17:]{type,nullable,example}:
+        weight_kg: number,true,80.5
+        lean_mass_kg: number,true,65
+        fat_percent: number,true,18.5
+        neck_cm: number,true,38
+        shoulder_cm: number,true,115
+        chest_cm: number,true,95
+        left_bicep_cm: number,true,35
+        right_bicep_cm: number,true,35.5
+        left_forearm_cm: number,true,28
+        right_forearm_cm: number,true,28.5
+        abdomen: number,true,85
+        waist: number,true,80
+        hips: number,true,95
+        left_thigh: number,true,55
+        right_thigh: number,true,55.5
+        left_calf: number,true,37
+        right_calf: number,true,37.5
     Set:
       type: object
       properties:
@@ -1329,7 +1234,7 @@ components:
         sets:
           type: array
           items:
-            "$ref": #/components/schemas/Set
+            "$ref": "#/components/schemas/Set"
     ExerciseHistoryEntry:
       type: object
       properties:
@@ -1423,6 +1328,8 @@ components:
           description: The secondary muscle groups of the exercise.
           items:
             type: string
+        equipment_category:
+          "$ref": "#/components/schemas/EquipmentCategory"
         is_custom:
           type: boolean
           description: A boolean indicating whether the exercise is a custom exercise.
@@ -1439,44 +1346,29 @@ components:
               description: The title of the exercise template.
               example: Bench Press
             exercise_type:
-              "$ref": #/components/schemas/CustomExerciseType
+              "$ref": "#/components/schemas/CustomExerciseType"
             equipment_category:
-              "$ref": #/components/schemas/EquipmentCategory
+              "$ref": "#/components/schemas/EquipmentCategory"
               description: The equipment category of the exercise template.
               example: barbell
             muscle_group:
-              "$ref": #/components/schemas/MuscleGroup
+              "$ref": "#/components/schemas/MuscleGroup"
               description: The muscle group of the exercise template.
               example: chest
             other_muscles:
               type: array
               items:
-                "$ref": #/components/schemas/MuscleGroup
+                "$ref": "#/components/schemas/MuscleGroup"
               description: The other muscles of the exercise template.
               example[2]: biceps,triceps
     RoutineFolder:
       type: object
-      properties:
-        id:
-          type: number
-          description: The routine folder ID.
-          example: 42
-        index:
-          type: number
-          description: The routine folder index. Describes the order of the folder in the list.
-          example: 1
-        title:
-          type: string
-          description: The routine folder title.
-          example: Push Pull 🏋️‍♂️
-        updated_at:
-          type: string
-          description: ISO 8601 timestamp of when the folder was last updated.
-          example: "2021-09-14T12:00:00Z"
-        created_at:
-          type: string
-          description: ISO 8601 timestamp of when the folder was created.
-          example: "2021-09-14T12:00:00Z"
+      properties[5:]{type,description,example}:
+        id: number,The routine folder ID.,42
+        index: number,The routine folder index. Describes the order of the folder in the list.,1
+        title: string,The routine folder title.,Push Pull 🏋️‍♂️
+        updated_at: string,ISO 8601 timestamp of when the folder was last updated.,"2021-09-14T12:00:00Z"
+        created_at: string,ISO 8601 timestamp of when the folder was created.,"2021-09-14T12:00:00Z"
     Routine:
       type: object
       properties:
@@ -1558,17 +1450,9 @@ components:
                       type: object
                       nullable: true
                       description: "Range of reps for the set, if applicable"
-                      properties:
-                        start:
-                          type: number
-                          nullable: true
-                          description: Starting rep count for the range
-                          example: 8
-                        end:
-                          type: number
-                          nullable: true
-                          description: Ending rep count for the range
-                          example: 12
+                      properties[2:]{type,nullable,description,example}:
+                        start: number,true,Starting rep count for the range,8
+                        end: number,true,Ending rep count for the range,12
                     distance_meters:
                       type: number
                       nullable: true
@@ -1591,24 +1475,15 @@ components:
                       example: 50
     UserInfo:
       type: object
-      properties:
-        id:
-          type: string
-          description: The user ID.
-          example: 9c465af3-de7d-42bc-9c7c-f0170396358b
-        name:
-          type: string
-          description: The user's display name.
-          example: John doe
-        url:
-          type: string
-          description: The user's public profile URL.
-          example: "https://hevy.com/user/jhon"
+      properties[3:]{type,description,example}:
+        id: string,The user ID.,9c465af3-de7d-42bc-9c7c-f0170396358b
+        name: string,The user's display name.,John doe
+        url: string,The user's public profile URL.,"https://hevy.com/user/jhon"
     UserInfoResponse:
       type: object
       properties:
         data:
-          "$ref": #/components/schemas/UserInfo
+          "$ref": "#/components/schemas/UserInfo"
     Workout:
       type: object
       properties:
@@ -1722,23 +1597,14 @@ components:
           description: Indicates the type of the event (updated)
           example: updated
         workout:
-          "$ref": #/components/schemas/Workout
+          "$ref": "#/components/schemas/Workout"
     DeletedWorkout:
       type: object
       required[2]: type,id
-      properties:
-        type:
-          type: string
-          description: Indicates the type of the event (deleted)
-          example: deleted
-        id:
-          type: string
-          description: The unique identifier of the deleted workout
-          example: efe6801c-4aee-4959-bcdd-fca3f272821b
-        deleted_at:
-          type: string
-          description: A date string indicating when the workout was deleted
-          example: "2021-09-13T12:00:00Z"
+      properties[3:]{type,description,example}:
+        type: string,Indicates the type of the event (deleted),deleted
+        id: string,The unique identifier of the deleted workout,efe6801c-4aee-4959-bcdd-fca3f272821b
+        deleted_at: string,A date string indicating when the workout was deleted,"2021-09-13T12:00:00Z"
     PaginatedWorkoutEvents:
       type: object
       required[3]: page,page_count,events
@@ -1755,7 +1621,7 @@ components:
           type: array
           items:
             oneOf[2]{"$ref"}:
-              #/components/schemas/UpdatedWorkout
-              #/components/schemas/DeletedWorkout
+              "#/components/schemas/UpdatedWorkout"
+              "#/components/schemas/DeletedWorkout"
           description: An array of workout events (either updated or deleted)
-tags[0]:
+tags: []
