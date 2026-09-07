@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Hevy API Docs",
-    "description": "\n      Welcome to Hevy's public API! We're just starting to roll this out and depending on your\n      feedback, we'll be adding more features and endpoints. Also, we make no guarantees that \n      we won't completely change the structure or abandon the project entirely so use it at\n      your own risk. Currently, this API is only available to Hevy Pro users. You can get your \n      key on our web app at https://hevy.com/settings?developer. If you have any questions,\n      please reach out to pedro@hevyapp.com 🤝.\n      ",
+    "title": "Hevy Public API Docs",
+    "description": "\n      Welcome to Hevy's public API! We're just starting to roll this out and depending on your\n      feedback, we'll be adding more features and endpoints. Also, we make no guarantees that \n      we won't completely change the structure or abandon the project entirely so use it at\n      your own risk. Currently, this API is only available to Hevy Pro users. You can get your \n      key on our web app at https://hevy.com/settings?developer. If you have any questions,\n      please reach out to pavel@hevyapp.com 🤝 \n\nNote: if for whatever reason you update data from Hevy hourly or daily, please don't send your requests exactly at xx:00. Put some random minute instead.\n      ",
     "version": "0.0.1"
   },
   "paths": {
@@ -1367,9 +1367,11 @@
       },
       "PostWorkoutsRequestBody": {
         "type": "object",
+        "required": ["workout"],
         "properties": {
           "workout": {
             "type": "object",
+            "required": ["title", "start_time", "end_time", "exercises"],
             "properties": {
               "title": {
                 "type": "string",
@@ -1394,7 +1396,8 @@
               },
               "is_private": {
                 "type": "boolean",
-                "description": "A boolean indicating if the workout is private.",
+                "description": "A boolean indicating if the workout is private. Optional - defaults to false when omitted.",
+                "default": false,
                 "example": false
               },
               "exercises": {
@@ -1635,6 +1638,12 @@
                 "type": "string",
                 "description": "The title of the routine.",
                 "example": "April Leg Day 🔥"
+              },
+              "folder_id": {
+                "type": "number",
+                "nullable": true,
+                "description": "The folder id the routine should be added to. Pass null to insert the routine into default \"My Routines\" folder",
+                "example": null
               },
               "notes": {
                 "type": "string",
@@ -1927,7 +1936,7 @@
             "description": "The id of the exercise template. This can be used to fetch the exercise template.",
             "example": "05293BCA"
           },
-          "supersets_id": {
+          "superset_id": {
             "type": "number",
             "nullable": true,
             "description": "The id of the superset that the exercise belongs to. A value of null indicates the exercise is not part of a superset.",
@@ -2097,6 +2106,9 @@
               "type": "string"
             }
           },
+          "equipment": {
+            "$ref": "#/components/schemas/EquipmentCategory"
+          },
           "is_custom": {
             "type": "boolean",
             "description": "A boolean indicating whether the exercise is a custom exercise.",
@@ -2230,7 +2242,7 @@
                   "description": "The id of the exercise template. This can be used to fetch the exercise template.",
                   "example": "05293BCA"
                 },
-                "supersets_id": {
+                "superset_id": {
                   "type": "number",
                   "nullable": true,
                   "description": "The id of the superset that the exercise belongs to. A value of null indicates the exercise is not part of a superset.",
@@ -2410,7 +2422,7 @@
                   "description": "The id of the exercise template. This can be used to fetch the exercise template.",
                   "example": "05293BCA"
                 },
-                "supersets_id": {
+                "superset_id": {
                   "type": "number",
                   "nullable": true,
                   "description": "The id of the superset that the exercise belongs to. A value of null indicates the exercise is not part of a superset.",
