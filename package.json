@@ -49,12 +49,10 @@
     "@changesets/changelog-github": "^1.0.1",
     "@changesets/cli": "^3",
     "@types/bun": "^1.4.2",
-    "@types/node": "^26.5.1",
     "openapi-typescript": "^7.13.0",
     "oxfmt": "^0.68.0",
     "oxlint": "^1.83.0",
-    "typescript": "^7.0.2",
-    "undici-types": "^8.10.2"
+    "typescript": "^7.0.2"
   },
   "engines": {
     "bun": ">=1.1.0"
