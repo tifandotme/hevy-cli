@@ -1,6 +1,6 @@
 ---
 name: hevy-cli
-description: 'Use when the user wants to interact with Hevy through the local `hevy` CLI: view workouts, routines, exercises, body measurements, exercise history, user profile, or create/update/delete Hevy resources. Trigger for requests like "show my recent workouts", "summarize my Hevy data", "create a workout", "list my routines", "get my exercise history", or troubleshooting Hevy CLI auth and command usage.'
+description: 'Use when the user wants to interact with Hevy through the local `hevy` CLI: view workouts, routines, exercises, body measurements, exercise history, or user profile, and create or update supported Hevy resources. Trigger for requests like "show my recent workouts", "summarize my Hevy data", "create a workout", "list my routines", "get my exercise history", or troubleshooting Hevy CLI auth and command usage.'
 disable-model-invocation: true
 ---
 
@@ -28,7 +28,21 @@ bunx @tifan/hevy <group> --help
 bunx @tifan/hevy <group> <command> --help
 ```
 
-Write full commands. Do not rely on shell aliases or variables across tool calls.
+Inspect the bundled OpenAPI operation before constructing a request that help does not fully describe:
+
+```bash
+bunx @tifan/hevy openapi |
+  jq '.paths["/v1/workouts"].post'
+```
+
+When the operation uses a named request schema, inspect that schema too:
+
+```bash
+bunx @tifan/hevy openapi |
+  jq '.components.schemas.PostWorkoutsRequestBody'
+```
+
+Follow nested `$ref` values into `.components.schemas` as needed. Write full commands. Do not rely on shell aliases or variables across tool calls.
 
 ## Auth
 
@@ -54,7 +68,7 @@ Read-only commands may run when auth is available.
 
 Mutating commands require explicit natural-language confirmation in chat before execution. This applies to create, update, delete, or any command that changes the user's Hevy account. Do not rely on CLI prompts as confirmation.
 
-Before a mutation, show a concise summary of the planned change and ask the user to confirm.
+Before a mutation, inspect its OpenAPI request schema, show a concise summary of the planned change, and ask the user to confirm.
 
 ## Output handling
 

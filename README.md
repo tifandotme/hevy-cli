@@ -78,6 +78,13 @@ hevy workouts create --body @workout.json
 hevy body-measurements update 2026-05-06 --body @measurement.json
 ```
 
+Inspect an operation or request schema before creating JSON:
+
+```bash
+hevy openapi | jq '.paths["/v1/workouts"].post'
+hevy openapi | jq '.components.schemas.PostWorkoutsRequestBody'
+```
+
 ## Status
 
 Early release. `hevy` stays close to the Hevy public API shape, so commands map directly to API resources where possible.

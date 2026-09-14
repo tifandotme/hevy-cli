@@ -1,4 +1,5 @@
 import { defineCommand } from "citty"
+import openapi from "../docs/hevy-openapi.json" with { type: "json" }
 import packageJson from "../package.json" with { type: "json" }
 import { type Fetcher, fetchAllPages, request } from "./api"
 import {
@@ -76,11 +77,16 @@ async function readBody<
   return await readJsonBody(stringArg(args, "body"), deps.stdio)
 }
 
-const pageArgs = {
-  page: { type: "string", description: "Page number" },
-  "page-size": { type: "string", description: "Page size" },
-  all: { type: "boolean", description: "Fetch every page" },
-} as const
+function pageArgs(pageSizeMaximum = 10, pageSizeDefault = 5) {
+  return {
+    page: { type: "string", description: "Page number (default 1)" },
+    "page-size": {
+      type: "string",
+      description: `Items per page (default ${pageSizeDefault}, maximum ${pageSizeMaximum})`,
+    },
+    all: { type: "boolean", description: "Fetch every page" },
+  } as const
+}
 
 const bodyArg = {
   body: {
@@ -98,6 +104,12 @@ export function createRootCommand(deps: CommandDeps) {
       description: "Command-line client for the Hevy public API",
     },
     subCommands: {
+      openapi: defineCommand({
+        meta: { description: "Print the bundled OpenAPI specification" },
+        async run() {
+          await show(deps, openapi)
+        },
+      }),
       auth: authCommand(deps),
       user: userCommand(deps),
       workouts: workoutsCommand(deps),
@@ -180,7 +192,7 @@ function workoutsCommand(deps: CommandDeps) {
     subCommands: {
       list: defineCommand({
         meta: { description: "List workouts" },
-        args: pageArgs,
+        args: pageArgs(),
         async run({ args }) {
           const key = await apiKey(deps)
           const query = pageQuery(args)
@@ -230,8 +242,8 @@ function workoutsCommand(deps: CommandDeps) {
       events: defineCommand({
         meta: { description: "List workout events" },
         args: {
-          ...pageArgs,
-          since: { type: "string", description: "ISO date" },
+          ...pageArgs(),
+          since: { type: "string", description: "ISO 8601 date-time" },
         },
         async run({ args }) {
           const key = await apiKey(deps)
@@ -267,7 +279,13 @@ function workoutsCommand(deps: CommandDeps) {
       }),
       get: defineCommand({
         meta: { description: "Get a workout" },
-        args: { "workout-id": { type: "positional", required: true } },
+        args: {
+          "workout-id": {
+            type: "positional",
+            description: "Workout ID",
+            required: true,
+          },
+        },
         async run({ args }) {
           await show(
             deps,
@@ -300,7 +318,11 @@ function workoutsCommand(deps: CommandDeps) {
       update: defineCommand({
         meta: { description: "Update a workout" },
         args: {
-          "workout-id": { type: "positional", required: true },
+          "workout-id": {
+            type: "positional",
+            description: "Workout ID",
+            required: true,
+          },
           ...bodyArg,
         },
         async run({ args }) {
@@ -332,6 +354,7 @@ function routinesCommand(deps: CommandDeps) {
     itemPath: "/v1/routines/{routineId}",
     pathParam: "routineId",
     argName: "routine-id",
+    itemName: "routine",
   })
 }
 
@@ -349,6 +372,8 @@ function exerciseTemplatesCommand(deps: CommandDeps) {
         "/v1/exercise_templates/{exerciseTemplateId}",
         "exerciseTemplateId",
         "exercise-template-id",
+        "exercise template",
+        100,
       ),
       create: defineCommand({
         meta: { description: "Create an exercise template" },
@@ -384,6 +409,7 @@ function routineFoldersCommand(deps: CommandDeps) {
         "/v1/routine_folders/{folderId}",
         "folderId",
         "folder-id",
+        "routine folder",
       ),
       create: defineCommand({
         meta: { description: "Create a routine folder" },
@@ -415,9 +441,19 @@ function exerciseHistoryCommand(deps: CommandDeps) {
       list: defineCommand({
         meta: { description: "List exercise history" },
         args: {
-          "exercise-template-id": { type: "positional", required: true },
-          "start-date": { type: "string", description: "Start date" },
-          "end-date": { type: "string", description: "End date" },
+          "exercise-template-id": {
+            type: "positional",
+            description: "Exercise template ID",
+            required: true,
+          },
+          "start-date": {
+            type: "string",
+            description: "Start date (ISO 8601 date-time)",
+          },
+          "end-date": {
+            type: "string",
+            description: "End date (ISO 8601 date-time)",
+          },
         },
         async run({ args }) {
           await show(
@@ -459,6 +495,9 @@ function bodyMeasurementsCommand(deps: CommandDeps) {
         "/v1/body_measurements/{date}",
         "date",
         "date",
+        "body measurement",
+        10,
+        10,
       ),
       create: defineCommand({
         meta: { description: "Create a body measurement" },
@@ -478,7 +517,14 @@ function bodyMeasurementsCommand(deps: CommandDeps) {
       }),
       update: defineCommand({
         meta: { description: "Update a body measurement" },
-        args: { date: { type: "positional", required: true }, ...bodyArg },
+        args: {
+          date: {
+            type: "positional",
+            description: "Measurement date (YYYY-MM-DD)",
+            required: true,
+          },
+          ...bodyArg,
+        },
         async run({ args }) {
           await show(
             deps,
@@ -509,10 +555,11 @@ function pagedCrudCommand(
     itemPath: "/v1/routines/{routineId}"
     pathParam: string
     argName: string
+    itemName: string
   },
 ) {
   return defineCommand({
-    meta: { name: config.name, description: `${config.name} commands` },
+    meta: { name: config.name, description: "Routine commands" },
     subCommands: {
       ...pagedReadSubcommands(
         deps,
@@ -521,9 +568,10 @@ function pagedCrudCommand(
         config.itemPath,
         config.pathParam,
         config.argName,
+        config.itemName,
       ),
       create: defineCommand({
-        meta: { description: `Create ${config.name}` },
+        meta: { description: `Create a ${config.itemName}` },
         args: bodyArg,
         async run({ args }) {
           await show(
@@ -539,9 +587,13 @@ function pagedCrudCommand(
         },
       }),
       update: defineCommand({
-        meta: { description: `Update ${config.name}` },
+        meta: { description: `Update a ${config.itemName}` },
         args: {
-          [config.argName]: { type: "positional", required: true },
+          [config.argName]: {
+            type: "positional",
+            description: `${config.itemName} ID`,
+            required: true,
+          },
           ...bodyArg,
         },
         async run({ args }) {
@@ -582,11 +634,14 @@ function pagedReadSubcommands(
     | "/v1/body_measurements/{date}",
   pathParam: string,
   argName: string,
+  itemName: string,
+  pageSizeMaximum = 10,
+  pageSizeDefault = 5,
 ) {
   return {
     list: defineCommand({
-      meta: { description: "List items" },
-      args: pageArgs,
+      meta: { description: `List ${itemName}s` },
+      args: pageArgs(pageSizeMaximum, pageSizeDefault),
       async run({ args }) {
         const key = await apiKey(deps)
         const query = pageQuery(args)
@@ -620,8 +675,17 @@ function pagedReadSubcommands(
       },
     }),
     get: defineCommand({
-      meta: { description: "Get an item" },
-      args: { [argName]: { type: "positional", required: true } },
+      meta: { description: `Get a ${itemName}` },
+      args: {
+        [argName]: {
+          type: "positional",
+          description:
+            argName === "date"
+              ? "Measurement date (YYYY-MM-DD)"
+              : `${itemName} ID`,
+          required: true,
+        },
+      },
       async run({ args }) {
         await show(
           deps,

@@ -1210,12 +1210,12 @@ export interface components {
       sets?: components["schemas"]["PostWorkoutsRequestSet"][]
     }
     PostWorkoutsRequestBody: {
-      workout?: {
+      workout: {
         /**
          * @description The title of the workout.
          * @example Friday Leg Day 🔥
          */
-        title?: string
+        title: string
         /**
          * @description A description for the workout workout.
          * @example Medium intensity leg day focusing on quads.
@@ -1225,18 +1225,19 @@ export interface components {
          * @description The time the workout started.
          * @example 2024-08-14T12:00:00Z
          */
-        start_time?: string
+        start_time: string
         /**
          * @description The time the workout ended.
          * @example 2024-08-14T12:30:00Z
          */
-        end_time?: string
+        end_time: string
         /**
-         * @description A boolean indicating if the workout is private.
+         * @description A boolean indicating if the workout is private. Optional - defaults to false when omitted.
+         * @default false
          * @example false
          */
-        is_private?: boolean
-        exercises?: components["schemas"]["PostWorkoutsRequestExercise"][]
+        is_private: boolean
+        exercises: components["schemas"]["PostWorkoutsRequestExercise"][]
       }
     }
     PostRoutinesRequestSet: {
@@ -1405,6 +1406,11 @@ export interface components {
          */
         title?: string
         /**
+         * @description The folder id the routine should be added to. Pass null to insert the routine into default "My Routines" folder
+         * @example null
+         */
+        folder_id?: number | null
+        /**
          * @description Additional notes for the routine.
          * @example Focus on form over weight. Remember to stretch.
          */
@@ -1565,7 +1571,7 @@ export interface components {
        * @description The id of the superset that the exercise belongs to. A value of null indicates the exercise is not part of a superset.
        * @example 0
        */
-      supersets_id?: number | null
+      superset_id?: number | null
       sets?: components["schemas"]["Set"][]
     }
     ExerciseHistoryEntry: {
@@ -1705,6 +1711,7 @@ export interface components {
       primary_muscle_group?: string
       /** @description The secondary muscle groups of the exercise. */
       secondary_muscle_groups?: string[]
+      equipment?: components["schemas"]["EquipmentCategory"]
       /**
        * @description A boolean indicating whether the exercise is a custom exercise.
        * @example false
@@ -1822,7 +1829,7 @@ export interface components {
          * @description The id of the superset that the exercise belongs to. A value of null indicates the exercise is not part of a superset.
          * @example 0
          */
-        supersets_id?: number | null
+        superset_id?: number | null
         sets?: {
           /**
            * @description Index indicating the order of the set in the routine.
@@ -1966,7 +1973,7 @@ export interface components {
          * @description The id of the superset that the exercise belongs to. A value of null indicates the exercise is not part of a superset.
          * @example 0
          */
-        supersets_id?: number | null
+        superset_id?: number | null
         sets?: {
           /**
            * @description Index indicating the order of the set in the workout.
