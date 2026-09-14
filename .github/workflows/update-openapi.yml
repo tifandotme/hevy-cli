@@ -32,7 +32,7 @@ jobs:
         with:
           bun-version: latest
 
-      - run: bun install --frozen-lockfile
+      - run: bun install --frozen-lockfile --linker isolated
 
       - name: Update OpenAPI docs
         run: bun run update:openapi

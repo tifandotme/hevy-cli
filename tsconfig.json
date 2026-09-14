@@ -9,7 +9,8 @@
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
     "noEmit": true,
-    "types": ["bun-types"]
+    "types": ["bun"],
+    "preserveSymlinks": true
   },
   "include": ["src/**/*.ts", "tests/**/*.ts", "scripts/**/*.ts"]
 }
