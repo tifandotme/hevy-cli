@@ -1,5 +1,11 @@
 # @tifan/hevy
 
+## 0.3.0
+
+### Minor Changes
+
+- [`1c1039b`](https://github.com/tifandotme/hevy-cli/commit/1c1039b6f8c91ae0213ea63af6df2d6eab07fcaf) Thanks [@tifandotme](https://github.com/tifandotme)! - Add an `openapi` command for inspecting the bundled API contract and improve resource command help.
+
 ## 0.2.2
 
 ### Patch Changes
