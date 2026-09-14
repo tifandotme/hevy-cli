@@ -1,7 +1,6 @@
 ---
 name: hevy-cli
-description: 'Use when the user wants to interact with Hevy through the local `hevy` CLI: view workouts, routines, exercises, body measurements, exercise history, or user profile, and create or update supported Hevy resources. Trigger for requests like "show my recent workouts", "summarize my Hevy data", "create a workout", "list my routines", "get my exercise history", or troubleshooting Hevy CLI auth and command usage.'
-disable-model-invocation: true
+description: "Helps an agent use the published `hevy` CLI for natural-language requests about workouts, routines, exercise templates, routine folders, body measurements, exercise history, user info, or the bundled OpenAPI contract. Also covers authenticated create or update requests and Hevy CLI auth troubleshooting."
 ---
 
 # Hevy CLI
@@ -28,7 +27,7 @@ bunx @tifan/hevy <group> --help
 bunx @tifan/hevy <group> <command> --help
 ```
 
-Inspect the bundled OpenAPI operation before constructing a request that help does not fully describe:
+The `openapi` command is read-only and does not require authentication. Inspect its bundled operation before constructing a request that help does not fully describe:
 
 ```bash
 bunx @tifan/hevy openapi |
@@ -66,7 +65,7 @@ Never ask the user to paste an API key into chat. Never echo API keys, config fi
 
 Read-only commands may run when auth is available.
 
-Mutating commands require explicit natural-language confirmation in chat before execution. This applies to create, update, delete, or any command that changes the user's Hevy account. Do not rely on CLI prompts as confirmation.
+Commands that change the user's Hevy account, including `create` and `update`, require explicit natural-language confirmation in chat before execution. Do not rely on CLI prompts as confirmation.
 
 Before a mutation, inspect its OpenAPI request schema, show a concise summary of the planned change, and ask the user to confirm.
 
