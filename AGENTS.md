@@ -41,6 +41,24 @@ bun test tests/smoke.test.ts
 - Use Bun-native APIs and Bun test patterns already present in `tests/`.
 - Keep edits surgical. Do not rewrite generated files manually unless the source contract or generator changed.
 
+## Releases
+
+Add a changeset for every user-facing CLI change:
+
+```bash
+bun changeset
+```
+
+The Release workflow opens a `Version Packages` pull request on `master`. Merging it publishes `@tifan/hevy` to npm with provenance. Before the first automated publish, configure npm trusted publishing for this repository:
+
+```bash
+npm trust github @tifan/hevy \
+  --repository tifandotme/hevy-cli \
+  --file release.yml \
+  --allow-publish \
+  --yes
+```
+
 ## Checks after Code Changes
 
 After changing code, run typecheck before anything else that may depend on code fixes:

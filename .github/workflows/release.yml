@@ -1,27 +1,33 @@
 name: Release
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [master]
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 permissions:
-  id-token: write
   contents: write
+  pull-requests: write
+  id-token: write
 
 jobs:
   release:
-    runs-on: ubuntu-slim
-    timeout-minutes: 5
-
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
       - name: Cache Bun
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.bun
           key: bun-${{ runner.os }}-${{ hashFiles('**/bun.lock') }}
@@ -32,6 +38,11 @@ jobs:
         with:
           no-cache: true
 
+      - name: Upgrade npm for OIDC trusted publishing
+        run: |
+          bun add -g npm@11
+          echo "registry=https://registry.npmjs.org/" > ~/.npmrc
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
@@ -41,22 +52,7 @@ jobs:
           bun run lint
           bun run typecheck
           bun test
-
-      - name: Configure Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Version package
-        run: bun changeset version
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build package
-        run: bun run build
-
-      - name: Check packed package
-        run: npm pack --dry-run
+          bun run build
 
       - name: Test packed CLI install
         run: |
@@ -66,8 +62,14 @@ jobs:
           npm install --prefix "${install_dir}" "${pack_dir}"/*.tgz
           "${install_dir}/node_modules/.bin/hevy" --help
 
-      - name: Publish package
-        run: bun changeset publish
-
-      - name: Push changes
-        run: git push --follow-tags
+      - name: Create Release Pull Request or Publish
+        uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
+        with:
+          version-script: bun run version
+          publish-script: bun run release
+          commit-message: "chore: version packages"
+          pr-title: "chore: version packages"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: "true"

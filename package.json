@@ -25,6 +25,10 @@
     "LICENSE"
   ],
   "type": "module",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "format": "oxfmt .",
     "format:check": "oxfmt --check .",
@@ -33,6 +37,8 @@
     "test": "bun test",
     "build": "bun build src/cli.ts --outdir dist --target bun",
     "prepublishOnly": "bun run typecheck && bun test && bun run build",
+    "version": "changeset version",
+    "release": "changeset publish",
     "generate:openapi-types": "bun run scripts/generate-openapi-types.ts",
     "update:openapi": "bun run scripts/update-openapi.ts"
   },

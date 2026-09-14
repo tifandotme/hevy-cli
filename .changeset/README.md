@@ -1,5 +1,7 @@
 # Changesets
 
-Run `bun changeset` for user-facing changes that should be published to npm.
+This directory holds [Changesets](https://github.com/changesets/changesets). Each `.md` file describes intent to bump the package version and adds a changelog summary.
 
-The release workflow runs `bun changeset version`, publishes with `bun changeset publish`, and pushes the version commit and tags.
+Run `bun changeset` to author one. Commit the resulting file alongside the code change.
+
+The Release workflow consumes these files: it opens a `Version Packages` pull request that bumps `@tifan/hevy` and updates `CHANGELOG.md`, then publishes to npm when that pull request is merged.
